@@ -64,6 +64,7 @@ class Kunde{
 		this.Vorname
 		this.Benutzername
 		this.Kennwort
+		this.Telefonnummer
 		// IstEingeloggt ist ein boolean.
 		// Der Wert ist entweder wahr oder falsch.
 		this.IstEingeloggt
@@ -298,7 +299,8 @@ app.get('/profil', (req, res) => {
 		// Wenn die Zugangsdaten korrekt sind, dann wird die angesurfte Seite gerendert.
 		res.render('profil.ejs',{
 			Meldung: "",
-			Email: kunde.Mail
+			Email: kunde.Mail,
+			Telefonnummer: kunde.Telefonnummer
 		});
 
 	}else{
@@ -320,6 +322,7 @@ app.post('/profil', (req, res) => {
 		// sein Profil ändern will.
 
 		let email = req.body.Email;
+		let Telefonnummer = req.body.Telefonnummer;
 		
 		// Die übergebene Adresse wird in die Validate-Funktion übergeben und geprüft
 
@@ -334,10 +337,20 @@ app.post('/profil', (req, res) => {
 			meldung = "EMail-adresse ungültig";
 		}
 		
+		kunde.Telefonnummer = Telefonnummer;
+
 		// Die profil-Seite wird gerendert.
 		res.render('profil.ejs',{
 			Meldung: meldung,
-			Email: ""
+			Nachname: kunde.Nachname,
+			Vorname: kunde.Vorname,
+			Benutzername: kunde.Benutzername,
+			Kennwort: kunde.Kennwort,
+			Wohnort: kunde.Wohnort,
+			PLZ: kunde.PLZ,
+			Strasse: kunde.Strasse,
+			Email: kunde.Mail ?? "",
+			Telefonnummer: kunde.Telefonnummer ?? ""
 		});
 
 	}else{
@@ -377,26 +390,29 @@ app.get('/kreditBeantragen', (req, res) => {
 });
 
 
-// Kommentar: 
+// Der Button zum Kredit berechnen wird gedrückt. Dann wird diese app.post ausgeführt.
 app.post('/kreditBeantragen', (req, res) => {
 
-	// Kommentar:
+	// Diese Werte können aus dem Browserformular entnommen werden. 
 	let zinsbetrag = req.body.Betrag;
 	let laufzeit = req.body.Laufzeit;
 	let zinssatz = req.body.Zinssatz;
 
-	// Kommentar:
+	// Mit diesen Werten wird dann der Rückzahlungsbetrag berechnet.
 	let kredit = zinsbetrag * Math.pow(1+zinssatz/100,laufzeit);
 	
-	// Kommentar:
+	// Jetzt wird auf 2 Nachkommastellen gerundet.
+	kredit = kredit.toFixed(2); 
+
+	// Dieser Satz erscheint dann für den Kunden 
 	console.log("Rückzahlungsbetrag: " + kredit + " €.")
 
-	// Kommentar:
+	// Die Werte werden an den Browser übertragen. 
 	res.render('kreditBeantragen.ejs',{
 		Laufzeit: laufzeit,
 		Zinssatz: zinssatz,		
 		Betrag: zinsbetrag,
-		// Kommentar:
+		// Das ist die Meldung die der Kunde dann lesen kann. Sie steht dann auf der Homepage. 
 		Meldung: "Rückzahlungsbetrag: " + kredit + " €."
 	});
 });
